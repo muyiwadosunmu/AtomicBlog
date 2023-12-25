@@ -1,4 +1,4 @@
-import { useEffect, useState, memo, useMemo } from "react";
+import { useEffect, useState, memo, useMemo, useCallback } from "react";
 import { faker } from "@faker-js/faker";
 
 function createRandomPost() {
@@ -25,9 +25,9 @@ function App() {
         )
       : posts;
 
-  function handleAddPost(post) {
+  const handleAddPost = useCallback(function handleAddPost(post) {
     setPosts((posts) => [post, ...posts]);
-  }
+  }, []);
 
   function handleClearPosts() {
     setPosts([]);
@@ -64,7 +64,16 @@ function App() {
         setSearchQuery={setSearchQuery}
       />
       <Main posts={searchedPosts} onAddPost={handleAddPost} />
-      <Archive archivedOptions={archivedOptions} />
+      <Archive
+        archivedOptions={archivedOptions}
+        onAddPost={handleAddPost}
+        /**
+         * Even though we memoized the handleAddPost function and did not for the setIsFakeDark, it still worked WHY?
+         * React guarantees setter Functions of the useState hooks always have a stable identity which means they will not change on renders
+         * So it's okay to completely omit them from the Dependency Arrays of useEffects, useCallbacks and useMemo hooks
+         *  */
+        setIsFakeDark={setIsFakeDark}
+      />
       <Footer />
     </section>
   );
@@ -184,7 +193,7 @@ const Archive = memo(function Archive({ onAddPost, archivedOptions }) {
               <p>
                 <strong>{post.title}:</strong> {post.body}
               </p>
-              {/* <button onClick={() => onAddPost(post)}>Add as new post</button> */}
+              <button onClick={() => onAddPost(post)}>Add as new post</button>
             </li>
           ))}
         </ul>
