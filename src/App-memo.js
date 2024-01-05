@@ -28,7 +28,7 @@ function App() {
   const handleAddPost = useCallback(function handleAddPost(post) {
     setPosts((posts) => [post, ...posts]);
   }, []);
-
+ 
   function handleClearPosts() {
     setPosts([]);
   }
